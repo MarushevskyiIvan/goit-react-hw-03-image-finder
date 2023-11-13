@@ -70,7 +70,7 @@ export class App extends Component {
         return { page: prevState.page + 1 };
       },
       () => {
-        scroll.scrollToBottom({ smooth: true, delay: 200, duration: 800 });
+        scroll.scrollToBottom();
       }
     );
     this.setState({ isLoading: false });
