@@ -55,9 +55,6 @@ export class App extends Component {
       images: [],
     });
   };
-  scrollToBottom = () => {
-    scroll.scrollToBottom();
-  };
 
   handleLoadMore = () => {
     this.setState({ isLoading: true, error: false });
@@ -68,10 +65,14 @@ export class App extends Component {
       return;
     }
 
-    this.setState(prevState => {
-      return { page: prevState.page + 1 };
-    }, this.scrollToBottom());
-
+    this.setState(
+      prevState => {
+        return { page: prevState.page + 1 };
+      },
+      () => {
+        scroll.scrollToBottom();
+      }
+    );
     this.setState({ isLoading: false });
   };
 
