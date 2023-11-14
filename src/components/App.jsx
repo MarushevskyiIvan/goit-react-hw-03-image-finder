@@ -32,7 +32,7 @@ export class App extends Component {
         this.setState(prevState => {
           return {
             images: [...prevState.images, ...newImages.hits],
-            isLoadMore: this.state.page < Math.ceil(newImages.totalHits / 100),
+            isLoadMore: this.state.page < Math.ceil(newImages.totalHits / 12),
           };
         });
 
