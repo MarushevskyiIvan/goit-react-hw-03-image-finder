@@ -15,23 +15,25 @@ export class App extends Component {
     page: 1,
     error: false,
     isLoading: false,
-    collection: {},
+    randomId: 0,
+    isLoadMore: false,
   };
   async componentDidUpdate(prevProps, prevState) {
     if (
       prevState.query !== this.state.query ||
-      prevState.page !== this.state.page
+      prevState.page !== this.state.page ||
+      prevState.randomId !== this.state.randomId
     ) {
       try {
         this.setState({ isLoading: true, error: false });
 
-        const query = this.state.query;
-        const sliceQuery = query.slice(query.indexOf('/') + 1, query.length);
-
-        const newImages = await fetchImages(sliceQuery, this.state.page);
+        const newImages = await fetchImages(this.state.query, this.state.page);
 
         this.setState(prevState => {
-          return { images: [...prevState.images, ...newImages.hits] };
+          return {
+            images: [...prevState.images, ...newImages.hits],
+            isLoadMore: this.state.page < Math.ceil(newImages.totalHits / 100),
+          };
         });
 
         this.setState({ collection: newImages });
@@ -45,26 +47,19 @@ export class App extends Component {
   }
 
   handleSubmit = newQuery => {
-    if (newQuery === '') {
+    if (newQuery.trim() === '') {
       return toast.error('Please enter the text of the query');
     }
 
     this.setState({
-      query: `${Date.now()}/${newQuery}`,
+      query: newQuery,
       page: 1,
       images: [],
+      randomId: Math.random(),
     });
   };
 
   handleLoadMore = () => {
-    this.setState({ isLoading: true, error: false });
-
-    if (Math.ceil(this.state.collection.totalHits / 12) === this.state.page) {
-      toast.error('Collection is end ');
-      this.setState({ isLoading: false });
-      return;
-    }
-
     this.setState(
       prevState => {
         return { page: prevState.page + 1 };
@@ -73,11 +68,10 @@ export class App extends Component {
         scroll.scrollToBottom();
       }
     );
-    this.setState({ isLoading: false });
   };
 
   render() {
-    const { isLoading, images } = this.state;
+    const { isLoading, images, isLoadMore } = this.state;
 
     return (
       <>
@@ -86,7 +80,7 @@ export class App extends Component {
 
         {images.length > 0 && <ImageGallery item={images} />}
 
-        {images.length > 0 && (
+        {images.length > 0 && isLoadMore && (
           <LoadMoreButton addImages={this.handleLoadMore} />
         )}
         <Toaster />
